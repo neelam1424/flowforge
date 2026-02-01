@@ -1,5 +1,5 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { generateText } from "ai";
+import { generateText } from 'ai';
 import { inngest } from "./client";
 
 const google = createGoogleGenerativeAI();
