@@ -11,6 +11,19 @@ import { PAGINATION } from "@/config/constants";
 // import {NodeType} from "@prisma/client"
 import { NodeType } from "@/generated/prisma/enums";
 
+
+function resolveNodeType(type: string | null | undefined): NodeType {
+  if (!type) return NodeType.INITIAL;
+
+  if (type in NodeType) {
+    return NodeType[type as keyof typeof NodeType];
+  }
+
+  return NodeType.INITIAL;
+}
+
+
+
 export const workflowsRouter = createTRPCRouter({
   create: premiumProcedure.mutation(({ ctx }) => {
     return prisma.workflow.create({
@@ -37,7 +50,85 @@ export const workflowsRouter = createTRPCRouter({
         },
       });
     }),
-  updateName: protectedProcedure
+  update: protectedProcedure
+    .input(
+      z.object({
+         id: z.string(),
+         nodes: z.array(
+          z.object({
+            id: z.string(),
+            type: z.string().nullish(),
+            // ---------------------------------------------------------------
+            // type: z.nativeEnum(NodeType),
+            position: z.object({ x: z.number(), y:z.number()}),
+            data: z.record(z.string(), z.any()).optional(),       
+          }),
+         ),
+         edges: z.array(
+          z.object({
+            source: z.string(),
+            target: z.string(),
+            sourceHandle: z.string().nullish(),
+            targetHandle: z.string().nullish(),
+          })
+         )
+        })
+    )
+    .mutation( async ({ ctx, input }) => {
+      const {id, nodes, edges}= input;
+      
+      const workflow = await prisma.workflow.findUniqueOrThrow({
+        where: {id, userId: ctx.auth.user.id},
+      });
+
+      //Transaction to ensure consistency
+      return await prisma.$transaction(async (tx)=>{
+        await tx.node.deleteMany({
+          where: { workflowId:id}
+        });
+        //create nodes
+        await tx.node.createMany({
+          data: nodes.map((node)=>({
+            id: node.id,
+            workflowId: id,
+            name:node.type ?? "unknown",
+            // type: node.type as NodeType,
+            // type: NodeType[node.type as keyof typeof NodeType],///working
+            type: resolveNodeType(node.type),
+            // name: node.type,
+            // type: node.type,
+            position: node.position,
+            data: node.data ?? {},
+          })),
+        });
+
+// -----------------------------------------------------------
+
+       
+
+        //create connecions
+
+        await tx.connection.createMany({
+          data: edges.map((edge)=>({
+            workflowId: id,
+            fromNodeId: edge.source,
+            toNodeId: edge.target,
+            fromOutput: edge.sourceHandle || "main",
+            toInput: edge.targetHandle || "main",
+          }))
+        });
+
+        //update workflows updateAt timestamp
+
+        return tx.workflow.update({
+          where: {id},
+          data:{ updatedAt: new Date()},
+        });
+      })
+    }),
+
+
+    updateName: protectedProcedure
     .input(z.object({ id: z.string(), name: z.string().min(1) }))
     .mutation(({ ctx, input }) => {
       return prisma.workflow.update({
@@ -45,6 +136,10 @@ export const workflowsRouter = createTRPCRouter({
         data: { name: input.name },
       });
     }),
+
+
+
+
   getOne: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async({ ctx, input }) => {
