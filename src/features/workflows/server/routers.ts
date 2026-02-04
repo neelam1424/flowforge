@@ -10,6 +10,7 @@ import z from "zod";
 import { PAGINATION } from "@/config/constants";
 // import {NodeType} from "@prisma/client"
 import { NodeType } from "@/generated/prisma/enums";
+import { inngest } from "@/inngest/client";
 
 
 function resolveNodeType(type: string | null | undefined): NodeType {
@@ -25,6 +26,32 @@ function resolveNodeType(type: string | null | undefined): NodeType {
 
 
 export const workflowsRouter = createTRPCRouter({
+
+
+  execute: protectedProcedure
+  .input(z.object({id: z.string()}))
+  .mutation(async({input, ctx})=>{
+    const workflow = await prisma.workflow.findUniqueOrThrow({
+      where: {
+        id: input.id,
+        userId: ctx.auth.user.id,
+      }
+    });
+
+    await inngest.send({
+      name: "workflows/execute.workflow",
+      data: { workflowId: input.id},
+    })
+
+
+
+    return workflow;
+  }),
+
+
+
+
+
   create: premiumProcedure.mutation(({ ctx }) => {
     return prisma.workflow.create({
       data: {
@@ -58,8 +85,6 @@ export const workflowsRouter = createTRPCRouter({
           z.object({
             id: z.string(),
             type: z.string().nullish(),
-            // ---------------------------------------------------------------
-            // type: z.nativeEnum(NodeType),
             position: z.object({ x: z.number(), y:z.number()}),
             data: z.record(z.string(), z.any()).optional(),       
           }),
@@ -80,6 +105,7 @@ export const workflowsRouter = createTRPCRouter({
       const workflow = await prisma.workflow.findUniqueOrThrow({
         where: {id, userId: ctx.auth.user.id},
       });
+      
 
       //Transaction to ensure consistency
       return await prisma.$transaction(async (tx)=>{
@@ -92,19 +118,13 @@ export const workflowsRouter = createTRPCRouter({
             id: node.id,
             workflowId: id,
             name:node.type ?? "unknown",
-            // type: node.type as NodeType,
-            // type: NodeType[node.type as keyof typeof NodeType],///working
             type: resolveNodeType(node.type),
-            // name: node.type,
-            // type: node.type,
             position: node.position,
             data: node.data ?? {},
           })),
+          
         });
-
-// -----------------------------------------------------------
-
-       
+   
 
         //create connecions
 
@@ -124,7 +144,9 @@ export const workflowsRouter = createTRPCRouter({
           where: {id},
           data:{ updatedAt: new Date()},
         });
+        
       })
+      
     }),
 
 
