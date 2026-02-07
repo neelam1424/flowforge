@@ -3,11 +3,13 @@ import { manualTriggerExecutor } from "@/features/triggers/components/manual-tri
 import { httpRequestExecutor } from "../components/http-request/executor";
 import { NodeExecutor } from "../types";
 import { NodeType } from "@/generated/prisma/enums";
+import { googleFormTriggerExecutor } from "@/features/triggers/components/google-form-trigger/executor";
 
 export const executorRegistry: Record<NodeType, NodeExecutor> = {
     [NodeType.INITIAL]: manualTriggerExecutor,
     [NodeType.MANUAL_TRIGGER]: manualTriggerExecutor,
     [NodeType.HTTP_REQUEST]: httpRequestExecutor, //TODO: fix types
+    [NodeType.GOOGLE_FORM_TRIGGER]: googleFormTriggerExecutor
  
 }
 
@@ -19,3 +21,6 @@ export const getExecutor = (type: NodeType): NodeExecutor => {
 
     return executor;
 }
+
+// {{googleForm.responses["What endpoint should I fetch?"]}}
+// https://jsonplaceholder.typicode.com/users/1
