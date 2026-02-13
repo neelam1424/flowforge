@@ -46,8 +46,11 @@ export const WorkflowsList = () => {
   return (
     <EntityList
       items={workflows.data.items}
-      getKey={(workflow) => workflow.id}
-      renderItem={(workflow) => <WorkflowItem data={workflow} />}
+      // getKey={(workflow) => workflow.id}
+      // renderItem={(workflow) => <WorkflowItem data={workflow} />}
+      // emptyView={<WorkflowsEmpty />}
+      getKey={(workflow: Workflow) => workflow.id}
+      renderItem={(workflow: Workflow) => <WorkflowItem data={workflow} />}
       emptyView={<WorkflowsEmpty />}
     />
   );
