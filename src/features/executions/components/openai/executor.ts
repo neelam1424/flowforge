@@ -106,7 +106,7 @@ export const openAiExecutor: NodeExecutor<OpenAiData> = async({
 
 
     const openai = createOpenAI({
-        apiKey: decrypt(credential.value, )
+        apiKey: decrypt((credential as any).value),
     })
 
     try{

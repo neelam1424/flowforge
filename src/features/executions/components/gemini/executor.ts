@@ -107,7 +107,7 @@ export const geminiExecutor: NodeExecutor<GeminiData> = async({
 
 
     const google = createGoogleGenerativeAI({
-        apiKey: decrypt(credential.value),
+        apiKey: decrypt((credential as any).value),
     })
 
    
