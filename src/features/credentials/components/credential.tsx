@@ -248,6 +248,8 @@ export const CredentialView = ({
     // const params = useParams();
     // const credentialId = params.credentialId as string;
     const {data: credential} = useSuspenseCredential(credentialId);
+    // return trpc.credentials.getOne.useSuspenseQuery({ id });
 
-    return <CredentialForm initialData={credential}/>
+    // return <CredentialForm initialData={credential}/>
+    return <CredentialForm initialData={credential as CredentialFormProps["initialData"]}/>
 }
