@@ -1,5 +1,6 @@
 // Import with `import * as Sentry from "@sentry/nextjs"` if you are using ESM
-const Sentry = require("@sentry/nextjs");
+// const Sentry = require("@sentry/nextjs");
+import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
   dsn: "https://143ae1becde8136349d39c2edbe70c6e@o4510802915360768.ingest.us.sentry.io/4510812874997760",
