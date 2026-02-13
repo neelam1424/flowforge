@@ -28,6 +28,10 @@ interface Execution {
   status: ExecutionStatus;
   startedAt: Date;
   completedAt: Date | null;
+  workflow: {
+    id: string;
+    name: string;
+  };
   // ... add other fields you use
 }
 
@@ -48,8 +52,11 @@ export const ExecutionsList = () => {
   return (
     <EntityList
       items={executions.data.items}
-      getKey={(execution) => execution.id}
-      renderItem={(execution) => <ExecutionsItem data={execution} />}
+      // getKey={(execution) => execution.id}
+      // renderItem={(execution) => <ExecutionsItem data={execution} />}
+      // emptyView={<ExecutionsEmpty />}
+      getKey={(execution: Execution) => execution.id}
+      renderItem={(execution: Execution) => <ExecutionsItem data={execution} />}
       emptyView={<ExecutionsEmpty />}
     />
   );
