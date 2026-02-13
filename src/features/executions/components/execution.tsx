@@ -23,7 +23,17 @@ import {
 import { useSuspenseExecution } from "../hooks/use-executions";
 
 
-
+interface ExecutionData {
+    status: ExecutionStatus;
+    workflow: { name: string };
+    workflowId: string;
+    startedAt: Date | string;
+    completedAt?: Date | string | null;
+    inngestEventId: string;
+    error?: string | null;
+    errorStack?: string | null;
+    output?: any;
+}
 
 const getStatusIcon = (status: ExecutionStatus) => {
   switch (status) {
@@ -48,7 +58,8 @@ export const ExecutionView = ({
 }:{
     executionId: string
 }) => {
-    const {data: execution} = useSuspenseExecution(executionId);
+    const {data} = useSuspenseExecution(executionId);
+    const execution = data as ExecutionData;
     const [showStackTrace, setShowStackTrace] = useState(false);
 
 
