@@ -49,7 +49,10 @@ import Image from "next/image";
 
 
 
-
+interface CredentialItem {
+  id: string;
+  name: string;
+}
 
 
 const formSchema = z.object({
@@ -176,7 +179,7 @@ export const OpenAiDialog = ({
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        {credentials?.map((credential)=>(
+                                        {(credentials as CredentialItem[] | undefined)?.map((credential)=>(
                                             <SelectItem
                                             key={credential.id}
                                             value={credential.id}
