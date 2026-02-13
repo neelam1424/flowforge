@@ -11,6 +11,7 @@ import { PAGINATION } from "@/config/constants";
 // import {NodeType} from "@prisma/client"
 // import { NodeTy } from "@/generated/prisma/enums";
 import { NodeType } from "@/generated/prisma/enums";
+import { Node as PrismaNode } from "@/generated/prisma/client";
 
 import { sendWorkflowExecution } from "@/inngest/utils";
 
@@ -111,7 +112,7 @@ export const workflowsRouter = createTRPCRouter({
         });
         //create nodes
         await tx.node.createMany({
-          data: nodes.map((node)=>({
+          data: nodes.map((node:any)=>({
             id: node.id,
             workflowId: id,
             name:node.type ?? "unknown",
@@ -168,12 +169,12 @@ export const workflowsRouter = createTRPCRouter({
       });
 
       // Transform server nodes to react-flow compatible nodes
-      const nodes: Node[]= workflow.nodes.map((node)=> ({
+      const nodes: Node[]= workflow.nodes.map((node: PrismaNode)=> ({
         id: node.id,
         type: node.type,
         position: node.position as {x: number, y:number},
-        // data: (node.data as Record<string, unknown>) || {},
-        data: node.data as any,
+        data: (node.data as Record<string, unknown>) || {},
+        
       }));
 
       // Transform server connections to react-flow compatible edges
