@@ -9,6 +9,8 @@ import prisma from "@/lib/db";
 import { decrypt } from "@/lib/encryption";
 
 
+
+
 Handlebars.registerHelper("json",(context) => {
     const jsonString =JSON.stringify(context, null, 2);
     const safeString = new Handlebars.SafeString(jsonString);
@@ -85,8 +87,8 @@ export const anthropicExecutor: NodeExecutor<AnthropicData> = async({
     const systemPrompt = data.systemPrompt ? Handlebars.compile(data.systemPrompt)(context) : "you are a helpful assistant.";
     const userPrompt = Handlebars.compile(data.userPrompt)(context);
 
-        const credential = await step.run("get-credential",()=>{
-        return prisma.credential.findUnique({
+        const credential = await step.run("get-credential", async ()=>{
+        return await prisma.credential.findUnique({
             where:{
                 id: data.credentialId,
                 userId,
@@ -106,7 +108,7 @@ export const anthropicExecutor: NodeExecutor<AnthropicData> = async({
 
 
     const anthropic = createAnthropic({
-        apiKey: decrypt(credential.value),
+        apiKey: decrypt((credential as any).value),
     })
 
     try{
