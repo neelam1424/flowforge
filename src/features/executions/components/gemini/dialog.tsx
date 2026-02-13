@@ -48,6 +48,11 @@ import Image from "next/image";
 // ]as const;
 
 
+interface CredentialItem {
+  id: string;
+  name: string;
+}
+
 
 
 
@@ -176,7 +181,7 @@ export const GeminiDialog = ({
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        {credentials?.map((credential)=>(
+                                        {(credentials as CredentialItem[] | undefined)?.map((credential)=>(
                                             <SelectItem
                                             key={credential.id}
                                             value={credential.id}
