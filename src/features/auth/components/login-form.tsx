@@ -228,7 +228,7 @@ export function LoginForm() {
       {
         email: values.email,
         password: values.password,
-        callbackURL: "/dashboard", // Redirects to workflows/dashboard
+        callbackURL: "/", // Redirects to workflows/dashboard
       },
       {
         onSuccess: () => {
@@ -248,7 +248,7 @@ export function LoginForm() {
     setIsSocialPending(provider);
     await authClient.signIn.social({
       provider,
-      callbackURL: "/dashboard", // Ensure this matches your workflows page
+      callbackURL: "/", // Ensure this matches your workflows page
     }, {
       onSuccess: () => {
         toast.success(`Redirecting to ${provider}...`);
